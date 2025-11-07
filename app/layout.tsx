@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { SolanaProvider } from "@/components/SolanaProvider";
+import "@solana/wallet-adapter-react-ui/styles.css";
+import toast, { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SolanaProvider>{children}</SolanaProvider>
         <Toaster position="top-center" />
         <Analytics />
       </body>

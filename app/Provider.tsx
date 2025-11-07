@@ -17,40 +17,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import "@n8n/chat/style.css";
+import toast from "react-hot-toast";
 
 const links = [
   { href: "https://syra.gitbook.io/syra-docs", label: "Documentation" },
   { href: "https://x.com/syra_agent", label: "X" },
-  { href: "/waitlist", label: "Waitlist" },
   { href: "/feedback", label: "Feedback" },
 ];
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
-  const feedbackSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const feedbackSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmittingFeedback(true);
     const formData = new FormData(e.target as HTMLFormElement);
     const username = formData.get("username") as string;
     const feedback = formData.get("feedback") as string;
-    toast.promise<{ name: string }>(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => {
-            resolve({ name: "Feedback" });
-            setFeedbackOpen(false);
-            setIsSubmittingFeedback(false);
-          }, 2000)
-        ),
-      {
-        loading: "Submitting feedback...",
-        success: (data) => `Thanks for your feedback, it's matter to us!`,
-        error: "Error",
-      }
-    );
+    const submit = await fetch("/api/feedback/create", {
+      method: "POST",
+      body: JSON.stringify({ username, feedback }),
+    }).then((res) => res.json());
+    if (submit.ok) {
+      toast.success(submit.message);
+      setFeedbackOpen(false);
+      setIsSubmittingFeedback(false);
+    } else {
+      toast.error(submit.error);
+      setIsSubmittingFeedback(false);
+    }
+    // toast.promise<{ name: string }>(
+    //   () =>
+    //     new Promise((resolve) =>
+    //       setTimeout(() => {
+    //         resolve({ name: "Feedback" });
+    //         setFeedbackOpen(false);
+    //         setIsSubmittingFeedback(false);
+    //       }, 2000)
+    //     ),
+    //   {
+    //     loading: "Submitting feedback...",
+    //     success: (data) => `Thanks for your feedback, it's matter to us!`,
+    //     error: "Error",
+    //   }
+    // );
   };
 
   useEffect(() => {

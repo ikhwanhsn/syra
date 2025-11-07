@@ -1,9 +1,4 @@
 import Link from "next/link";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { TextLoop } from "@/components/motion-primitives/text-loop";
 import { TextEffect } from "@/components/motion-primitives/text-effect";
 import { Bot } from "@/components/animate-ui/icons/bot";
@@ -74,23 +69,18 @@ export default function Home() {
               </AnimateIcon>
             </button>
           </Link>
-          <Tooltip>
-            <TooltipTrigger>
-              <button className="bg-white text-zinc-900 px-6 py-3 rounded-full text-lg font-bold w-60 transition-colors duration-300 hover:bg-gray-300">
-                <AnimateIcon
-                  animateOnHover
-                  animation="path-loop"
-                  className="flex items-center gap-1.5 justify-center"
-                >
-                  <Blocks size={24} />
-                  Try Web App
-                </AnimateIcon>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>This feature is currently under development.</p>
-            </TooltipContent>
-          </Tooltip>
+          {/* <Link href="/dashboard"> */}
+          <button className="bg-white text-zinc-900 px-6 py-3 rounded-full text-lg font-bold w-60 transition-colors duration-300 hover:bg-gray-300 cursor-pointer border-4 border-white hover:border-gray-300">
+            <AnimateIcon
+              animateOnHover
+              animation="path-loop"
+              className="flex items-center gap-1.5 justify-center"
+            >
+              <Blocks size={24} />
+              Try Web App
+            </AnimateIcon>
+          </button>
+          {/* </Link> */}
         </div>
       </div>
     </Provider>
