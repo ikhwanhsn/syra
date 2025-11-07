@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     const data = await res.json();
     // get all pending signal and update to active when verified
     const client = await clientPromise;
-    const db = client.db();
+    const db = client.db("syra");
     const signalsPending = await db
       .collection("signals")
       .find({ status: "Pending" })

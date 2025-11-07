@@ -148,8 +148,23 @@ export function CreateSignalButtonNew() {
             levels. Fee: 0.0001 USDC
           </DialogDescription>
         </DialogHeader>
+        {/* Info Box */}
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 text-sm text-red-800 -mt-2">
+          <p>
+            <strong>Alert:</strong> Please change your wallet to Devnet before
+            creating a signal. Follow this instruction:{" "}
+            <a
+              href="https://help.phantom.com/hc/en-us/articles/5997313271699-About-devnet-and-tesnet-networks"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-600 underline"
+            >
+              Phantom Devnet Help
+            </a>
+          </p>
+        </div>
 
-        <div className="grid gap-5 py-4">
+        <div className="grid gap-5 py-4 -mt-5">
           {/* Signal Type */}
           <div className="grid gap-2">
             <Label htmlFor="signal" className="text-base">
@@ -188,7 +203,7 @@ export function CreateSignalButtonNew() {
           </div>
 
           {/* Token & Ticker in same row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 -mt-3">
             <div className="grid gap-2">
               <Label htmlFor="token" className="text-base">
                 Token <span className="text-red-500">*</span>
@@ -237,7 +252,7 @@ export function CreateSignalButtonNew() {
           )}
 
           {/* Entry Price */}
-          <div className="grid gap-2">
+          <div className="grid gap-2 -mt-3">
             <Label htmlFor="entryPrice" className="text-base">
               Entry Price <span className="text-red-500">*</span>
             </Label>
@@ -256,7 +271,7 @@ export function CreateSignalButtonNew() {
           </div>
 
           {/* Stop Loss & Take Profit in same row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 -mt-3">
             <div className="grid gap-2">
               <Label htmlFor="stopLoss" className="text-base">
                 Stop Loss <span className="text-red-500">*</span>
@@ -320,7 +335,7 @@ export function CreateSignalButtonNew() {
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="-mt-3">
           <DialogClose asChild>
             <Button variant="outline" className="cursor-pointer">
               Cancel
