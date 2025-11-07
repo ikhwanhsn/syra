@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/signal/verified",
+      "schedule": "*/1 * * * *"
+    }
+  ]
+}
