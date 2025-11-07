@@ -104,7 +104,7 @@ const HistorySignal = () => {
     error: errorRefresh,
     data: dataRefresh,
   } = useQuery({
-    queryKey: ["repoDataRefresh", dataCryptoPrice],
+    queryKey: ["repoDataRefresh"],
     queryFn: async () => {
       if (!dataCryptoPrice) return null;
 
