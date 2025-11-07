@@ -88,14 +88,6 @@ const HistorySignal = () => {
     placeholderData: [],
   });
   const {
-    isPending: isPendingRefresh,
-    error: errorRefresh,
-    data: dataRefresh,
-  } = useQuery({
-    queryKey: ["repoDataRefresh"],
-    queryFn: () => fetch(`/api/signal/verified`).then((res) => res.json()),
-  });
-  const {
     isPending: isPendingCryptoPrice,
     error: errorCryptoPrice,
     data: dataCryptoPrice,
@@ -106,6 +98,28 @@ const HistorySignal = () => {
         res.json()
       ),
     refetchInterval: 3000,
+  });
+  const {
+    isPending: isPendingRefresh,
+    error: errorRefresh,
+    data: dataRefresh,
+  } = useQuery({
+    queryKey: ["repoDataRefresh", dataCryptoPrice],
+    queryFn: async () => {
+      if (!dataCryptoPrice) return null;
+
+      const response = await fetch(`/api/signal/verified`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prices: dataCryptoPrice }),
+      });
+
+      return response.json();
+    },
+    enabled: !!dataCryptoPrice, // Only run when prices are available
+    refetchInterval: 10000, // Check every 10 seconds
   });
 
   useEffect(() => {

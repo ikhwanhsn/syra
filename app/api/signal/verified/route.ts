@@ -148,57 +148,46 @@
 //   }
 // }
 
+// app/api/signal/verified/route.ts
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
-  console.log("=== START /api/signal/verified ===");
-  console.log("1. Environment:", process.env.NODE_ENV);
-  console.log("2. Timestamp:", new Date().toISOString());
-
+export async function POST(req: Request) {
   try {
-    // store information signal that updated
+    const { prices } = await req.json();
+
+    if (!prices || !Array.isArray(prices)) {
+      return NextResponse.json(
+        { error: "Prices data is required" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Received prices:", prices.length, "pairs");
+
     let updatedSignalsFromPendingToActive = 0;
     let updatedSignalsFromActiveToSuccess = 0;
     let updatedSignalsFromActiveToFailed = 0;
 
-    console.log("3. Fetching Binance prices...");
-    // get all crypto price from binance api
-    const res = await fetch("https://api.binance.com/api/v3/ticker/price");
-    if (!res.ok) {
-      throw new Error(`Binance API error: ${res.status}`);
-    }
-    const data = await res.json();
-    console.log("4. Binance prices fetched:", data.length, "pairs");
-
-    console.log("5. Connecting to MongoDB...");
-    // get all pending signal and update to active when verified
     const client = await clientPromise;
-    console.log("6. MongoDB connected");
-
     const db = client.db("syra");
-    console.log("7. Database selected: syra");
 
-    console.log("8. Querying pending signals...");
     const signalsPending = await db
       .collection("signals")
       .find({ status: "Pending" })
       .toArray();
-    console.log("9. Found pending signals:", signalsPending.length);
 
     if (signalsPending.length === 0) {
-      console.log("10. No pending signals, returning 404");
       return NextResponse.json(
         { error: "No pending signals" },
         { status: 404 }
       );
     }
 
-    console.log("11. Processing pending signals...");
-    // update signal status to active when price reach entry price
+    // Use the prices passed from client
     for (const signal of signalsPending) {
-      const price = data.find(
+      const price = prices.find(
         (item: any) => item.symbol === `${signal.ticker}USDT`
       );
       if (price) {
@@ -229,27 +218,18 @@ export async function GET(req: Request) {
         }
       }
     }
-    console.log(
-      "12. Pending to Active updates:",
-      updatedSignalsFromPendingToActive
-    );
 
-    console.log("13. Querying active signals...");
-    // update signal status to success when price reach take profit price
     const signalsActive = await db
       .collection("signals")
       .find({ status: "Active" })
       .toArray();
-    console.log("14. Found active signals:", signalsActive.length);
 
     if (signalsActive.length === 0) {
-      console.log("15. No active signals, returning 404");
       return NextResponse.json({ error: "No active signals" }, { status: 404 });
     }
 
-    console.log("16. Processing active signals for take profit...");
     for (const signal of signalsActive) {
-      const price = data.find(
+      const price = prices.find(
         (item: any) => item.symbol === `${signal.ticker}USDT`
       );
       if (price) {
@@ -280,15 +260,9 @@ export async function GET(req: Request) {
         }
       }
     }
-    console.log(
-      "17. Active to Success updates:",
-      updatedSignalsFromActiveToSuccess
-    );
 
-    console.log("18. Processing active signals for stop loss...");
-    // update signal status to fail when price reach stop loss price
     for (const signal of signalsActive) {
-      const price = data.find(
+      const price = prices.find(
         (item: any) => item.symbol === `${signal.ticker}USDT`
       );
       if (price) {
@@ -319,12 +293,7 @@ export async function GET(req: Request) {
         }
       }
     }
-    console.log(
-      "19. Active to Failed updates:",
-      updatedSignalsFromActiveToFailed
-    );
 
-    console.log("20. Returning success response");
     return NextResponse.json(
       {
         message: "Updated signals Successfully!",
@@ -335,26 +304,9 @@ export async function GET(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("=== ERROR in /api/signal/verified ===");
-    console.error(
-      "Error type:",
-      error instanceof Error ? error.constructor.name : typeof error
-    );
-    console.error(
-      "Error message:",
-      error instanceof Error ? error.message : String(error)
-    );
-    console.error(
-      "Error stack:",
-      error instanceof Error ? error.stack : "No stack trace"
-    );
-
+    console.error(error);
     return NextResponse.json(
-      {
-        error: "Failed to update signals",
-        details: error instanceof Error ? error.message : String(error),
-        type: error instanceof Error ? error.constructor.name : typeof error,
-      },
+      { error: "Failed to update signals" },
       { status: 500 }
     );
   }
