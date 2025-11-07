@@ -88,6 +88,14 @@ const HistorySignal = () => {
     placeholderData: [],
   });
   const {
+    isPending: isPendingRefresh,
+    error: errorRefresh,
+    data: dataRefresh,
+  } = useQuery({
+    queryKey: ["repoDataRefresh"],
+    queryFn: () => fetch(`/api/signal/verified`).then((res) => res.json()),
+  });
+  const {
     isPending: isPendingCryptoPrice,
     error: errorCryptoPrice,
     data: dataCryptoPrice,
