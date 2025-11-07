@@ -119,7 +119,7 @@ const HistorySignal = () => {
       return response.json();
     },
     enabled: !!dataCryptoPrice, // Only run when prices are available
-    refetchInterval: 10000, // Check every 10 seconds
+    refetchInterval: 60000, // Check every minute
   });
 
   useEffect(() => {
