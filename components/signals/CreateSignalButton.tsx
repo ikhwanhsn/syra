@@ -247,7 +247,7 @@ export function CreateSignalButton({
       // Entry price must be below current market price
       if (formData.entryPrice >= currentPrice) {
         toast.error(
-          `Entry price must be below current market price (current: ${currentPrice.toFixed(
+          `Entry price must be below current market price (current: $${currentPrice.toFixed(
             2
           )})`
         );
@@ -257,7 +257,7 @@ export function CreateSignalButton({
       // Stop loss must be below entry price
       if (formData.stopLoss >= formData.entryPrice) {
         toast.error(
-          `Stop loss must be lower than entry price (min: ${minimalBuyStopLoss.toFixed(
+          `Stop loss must be lower than entry price (min: $${formData.entryPrice.toFixed(
             2
           )})`
         );
@@ -268,7 +268,7 @@ export function CreateSignalButton({
       const minStopLoss = formData.entryPrice * 0.99;
       if (formData.stopLoss > minStopLoss) {
         toast.error(
-          `Stop loss must be at least 1% below entry price (min: ${minimalBuyStopLoss.toFixed(
+          `Stop loss must be at least 1% below entry price (min: $${minimalBuyStopLoss.toFixed(
             2
           )})`
         );
@@ -278,7 +278,7 @@ export function CreateSignalButton({
       // Take profit must be above entry price
       if (formData.takeProfit <= formData.entryPrice) {
         toast.error(
-          `Take profit must be higher than entry price (min: ${minimalBuyTakeProfit.toFixed(
+          `Take profit must be higher than entry price (min: $${formData.entryPrice.toFixed(
             2
           )})`
         );
@@ -289,7 +289,7 @@ export function CreateSignalButton({
       const minTakeProfit = formData.entryPrice * 1.01;
       if (formData.takeProfit < minTakeProfit) {
         toast.error(
-          `Take profit must be at least 1% above entry price (min: ${minimalBuyTakeProfit.toFixed(
+          `Take profit must be at least 1% above entry price (min: $${minimalBuyTakeProfit.toFixed(
             2
           )})`
         );
@@ -301,7 +301,7 @@ export function CreateSignalButton({
       // Entry price must be above current market price
       if (formData.entryPrice <= currentPrice) {
         toast.error(
-          `Entry price must be above current market price (current: ${currentPrice.toFixed(
+          `Entry price must be above current market price (current: $${currentPrice.toFixed(
             2
           )})`
         );
@@ -311,7 +311,7 @@ export function CreateSignalButton({
       // Stop loss must be above entry price
       if (formData.stopLoss <= formData.entryPrice) {
         toast.error(
-          `Stop loss must be higher than entry price (min: ${minimalSellStopLoss.toFixed(
+          `Stop loss must be higher than entry price (min: $${formData.entryPrice.toFixed(
             2
           )})`
         );
@@ -322,7 +322,7 @@ export function CreateSignalButton({
       const minStopLoss = formData.entryPrice * 1.01;
       if (formData.stopLoss < minStopLoss) {
         toast.error(
-          `Stop loss must be at least 1% above entry price (min: ${minimalSellStopLoss.toFixed(
+          `Stop loss must be at least 1% above entry price (min: $${minimalSellStopLoss.toFixed(
             2
           )})`
         );
@@ -332,7 +332,7 @@ export function CreateSignalButton({
       // Take profit must be below entry price
       if (formData.takeProfit >= formData.entryPrice) {
         toast.error(
-          `Take profit must be lower than entry price (min: ${minimalSellTakeProfit.toFixed(
+          `Take profit must be lower than entry price (min: $${formData.entryPrice.toFixed(
             2
           )})`
         );
@@ -343,7 +343,7 @@ export function CreateSignalButton({
       const maxTakeProfit = formData.entryPrice * 0.99;
       if (formData.takeProfit > maxTakeProfit) {
         toast.error(
-          `Take profit must be at least 1% below entry price (min: ${minimalSellTakeProfit.toFixed(
+          `Take profit must be at least 1% below entry price (min: $${minimalSellTakeProfit.toFixed(
             2
           )})`
         );
