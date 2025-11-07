@@ -69,18 +69,18 @@ export default function Home() {
               </AnimateIcon>
             </button>
           </Link>
-          {/* <Link href="/dashboard"> */}
-          <button className="bg-white text-zinc-900 px-6 py-3 rounded-full text-lg font-bold w-60 transition-colors duration-300 hover:bg-gray-300 cursor-pointer border-4 border-white hover:border-gray-300">
-            <AnimateIcon
-              animateOnHover
-              animation="path-loop"
-              className="flex items-center gap-1.5 justify-center"
-            >
-              <Blocks size={24} />
-              Try Web App
-            </AnimateIcon>
-          </button>
-          {/* </Link> */}
+          <Link href="/dashboard">
+            <button className="bg-white text-zinc-900 px-6 py-3 rounded-full text-lg font-bold w-60 transition-colors duration-300 hover:bg-gray-300 cursor-pointer border-4 border-white hover:border-gray-300">
+              <AnimateIcon
+                animateOnHover
+                animation="path-loop"
+                className="flex items-center gap-1.5 justify-center"
+              >
+                <Blocks size={24} />
+                Try Web App
+              </AnimateIcon>
+            </button>
+          </Link>
         </div>
       </div>
     </Provider>
