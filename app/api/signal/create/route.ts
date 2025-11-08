@@ -451,9 +451,9 @@ async function handleRequest(req: NextRequest) {
           maxTimeoutSeconds: 300, // ADD: Timeout (e.g., 5 minutes)
           asset: USDC_MINT.toBase58(), // ADD: Token mint address
 
-          extra: {
-            recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
-          },
+          // extra: {
+          //   recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
+          // },
         },
       ],
     },

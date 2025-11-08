@@ -190,8 +190,11 @@ export function CreateSignalButton({
       // STEP 2: Check and setup token accounts
       console.log("2️⃣ Checking token accounts...");
       const mint = new PublicKey(quote.accepts[0].asset);
+      // const recipientWallet = new PublicKey(
+      //   quote.accepts[0].extra.recipientWallet
+      // );
       const recipientWallet = new PublicKey(
-        quote.accepts[0].extra.recipientWallet
+        "Cp5yFGYx88EEuUjhDAaQzXHrgxvVeYEWixtRnLFE81K4"
       );
 
       // Get associated token accounts
