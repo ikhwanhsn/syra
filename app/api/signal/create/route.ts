@@ -373,7 +373,7 @@ async function handleRequest(req: NextRequest) {
           scheme: "exact",
           network: "solana-devnet", // CHANGE: Specify network format
           maxAmountRequired: PRICE_PER_SIGNAL.toString(), // CHANGE: Must be string
-          resource: "/api/signals", // ADD: Your endpoint path
+          resource: "/api/signal/create", // ADD: Your endpoint path
           description: "Pay to create trading signal",
           mimeType: "application/json", // ADD: Content type
           payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // CHANGE: Use token account
