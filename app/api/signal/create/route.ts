@@ -381,59 +381,6 @@ async function handleRequest(req: NextRequest) {
           extra: {
             recipientWallet: SERVER_WALLET.toBase58(),
           },
-          outputSchema: {
-            input: {
-              type: "http",
-              method: "POST",
-              bodyType: "json",
-              bodyFields: {
-                wallet: {
-                  type: "string",
-                  required: true,
-                  description: "Wallet address",
-                },
-                signal: {
-                  type: "string",
-                  required: true,
-                  description: "Signal type (e.g., BUY/SELL)",
-                },
-                token: {
-                  type: "string",
-                  required: true,
-                  description: "Token address",
-                },
-                ticker: {
-                  type: "string",
-                  required: true,
-                  description: "Token ticker symbol",
-                },
-                entryPrice: {
-                  type: "number",
-                  required: true,
-                  description: "Entry price",
-                },
-                stopLoss: {
-                  type: "number",
-                  required: true,
-                  description: "Stop loss price",
-                },
-                takeProfit: {
-                  type: "number",
-                  required: true,
-                  description: "Take profit price",
-                },
-              },
-            },
-            output: {
-              // ✅ ADD THIS
-              type: "object",
-              properties: {
-                success: { type: "boolean" },
-                message: { type: "string" },
-                signal: { type: "object" },
-              },
-            },
-          },
         },
       ],
     },
