@@ -438,6 +438,7 @@ async function handleRequest(req: NextRequest) {
   return NextResponse.json(
     {
       x402Version: 1, // ADD: Required version field
+      error: "X-PAYMENT header is required",
       accepts: [
         // CHANGE: 'payment' → 'accepts' array
         {
@@ -450,10 +451,11 @@ async function handleRequest(req: NextRequest) {
           payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // CHANGE: Use token account
           maxTimeoutSeconds: 300, // ADD: Timeout (e.g., 5 minutes)
           asset: USDC_MINT.toBase58(), // ADD: Token mint address
+          outputSchema: null,
 
-          // extra: {
-          //   recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
-          // },
+          extra: {
+            recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
+          },
         },
       ],
     },
