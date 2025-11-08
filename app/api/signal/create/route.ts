@@ -370,7 +370,7 @@ async function handleRequest(req: NextRequest) {
       accepts: [
         {
           scheme: "exact",
-          network: "base", // CHANGED: Must be "base" per type definition
+          network: "solana-devnet", // ✅ CORRECT for Solana devnet
           maxAmountRequired: PRICE_PER_SIGNAL.toString(),
           resource: "/api/signal/create",
           description: "Pay to create trading signal",
@@ -380,7 +380,6 @@ async function handleRequest(req: NextRequest) {
           asset: USDC_MINT.toBase58(),
           extra: {
             recipientWallet: SERVER_WALLET.toBase58(),
-            actualNetwork: "solana-devnet", // Put actual network here
           },
           outputSchema: {
             input: {
@@ -425,7 +424,15 @@ async function handleRequest(req: NextRequest) {
                 },
               },
             },
-            output: {}, // ADDED: Required by some validators
+            output: {
+              // ✅ ADD THIS
+              type: "object",
+              properties: {
+                success: { type: "boolean" },
+                message: { type: "string" },
+                signal: { type: "object" },
+              },
+            },
           },
         },
       ],

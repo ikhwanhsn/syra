@@ -29,6 +29,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta property="og:image" content="https://syraa.fun/images/logo.jpg" />
+        <meta
+          property="og:description"
+          content="Trading signal creation with x402 payments"
+        />
+
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
