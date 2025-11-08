@@ -371,8 +371,8 @@ async function handleRequest(req: NextRequest) {
         {
           scheme: "exact",
           network: "solana-devnet",
-          maxAmountRequired: "100",
-          resource: "/api/signal/create",
+          maxAmountRequired: PRICE_PER_SIGNAL.toString(),
+          resource: "https://syraa.fun/api/signal/create", // ⚠️ Make this FULL URL
           description: "Pay to create trading signal",
           mimeType: "application/json",
           payTo: SERVER_TOKEN_ACCOUNT.toBase58(),
