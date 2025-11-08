@@ -370,7 +370,7 @@ async function handleRequest(req: NextRequest) {
       accepts: [
         {
           scheme: "exact",
-          network: "base",
+          network: "solana-devnet",
           maxAmountRequired: "100",
           resource: "/api/signal/create",
           description: "Pay to create trading signal",
