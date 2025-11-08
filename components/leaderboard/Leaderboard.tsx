@@ -107,7 +107,7 @@ const Leaderboard = () => {
                 {`${item.sellWinRate?.toFixed(1)}%` || `-`}
               </TableCell>
               <TableCell className="text-center">
-                {formatDate(item.lastActive) || `-`}
+                {item.lastActive ? formatDate(item.lastActive) : `-`}
               </TableCell>
             </TableRow>
           ))}
