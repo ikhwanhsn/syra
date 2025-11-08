@@ -366,24 +366,15 @@ async function handleRequest(req: NextRequest) {
 
   return NextResponse.json(
     {
-      x402Version: 1,
-      accepts: [
-        {
-          scheme: "exact",
-          network: "solana-devnet", // ✅ CORRECT for Solana devnet
-          maxAmountRequired: PRICE_PER_SIGNAL.toString(),
-          resource: "/api/signal/create",
-          description: "Pay to create trading signal",
-          mimeType: "application/json",
-          payTo: SERVER_TOKEN_ACCOUNT.toBase58(),
-          maxTimeoutSeconds: 300,
-          asset: USDC_MINT.toBase58(),
-          outputSchema: null,
-          extra: {
-            recipientWallet: SERVER_WALLET.toBase58(),
-          },
-        },
-      ],
+      payment: {
+        recipientWallet: SERVER_WALLET.toBase58(),
+        tokenAccount: SERVER_TOKEN_ACCOUNT.toBase58(),
+        mint: USDC_MINT.toBase58(),
+        amount: PRICE_PER_SIGNAL,
+        amountUSDC: PRICE_PER_SIGNAL / 1000000,
+        cluster: "devnet",
+        message: "Pay to create trading signal",
+      },
     },
     { status: 402 }
   );
