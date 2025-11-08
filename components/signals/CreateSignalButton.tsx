@@ -118,9 +118,7 @@ export function CreateSignalButton({
       // Stop loss must be below entry price
       if (formData.stopLoss >= formData.entryPrice) {
         toast.error(
-          `Stop loss must be lower than entry price (min: $${formData.entryPrice.toFixed(
-            2
-          )})`
+          `Stop loss must be lower than entry price (min: $${formData.entryPrice})`
         );
         return;
       }
@@ -139,9 +137,7 @@ export function CreateSignalButton({
       // Take profit must be above entry price
       if (formData.takeProfit <= formData.entryPrice) {
         toast.error(
-          `Take profit must be higher than entry price (min: $${formData.entryPrice.toFixed(
-            2
-          )})`
+          `Take profit must be higher than entry price (min: $${formData.entryPrice})`
         );
         return;
       }
@@ -172,9 +168,7 @@ export function CreateSignalButton({
       // Stop loss must be above entry price
       if (formData.stopLoss <= formData.entryPrice) {
         toast.error(
-          `Stop loss must be higher than entry price (min: $${formData.entryPrice.toFixed(
-            2
-          )})`
+          `Stop loss must be higher than entry price (min: $${formData.entryPrice})`
         );
         return;
       }
@@ -193,9 +187,7 @@ export function CreateSignalButton({
       // Take profit must be below entry price
       if (formData.takeProfit >= formData.entryPrice) {
         toast.error(
-          `Take profit must be lower than entry price (min: $${formData.entryPrice.toFixed(
-            2
-          )})`
+          `Take profit must be lower than entry price (min: $${formData.entryPrice})`
         );
         return;
       }
