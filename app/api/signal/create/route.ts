@@ -370,17 +370,16 @@ async function handleRequest(req: NextRequest) {
       accepts: [
         {
           scheme: "exact",
-          network: "solana-devnet",
-          maxAmountRequired: PRICE_PER_SIGNAL.toString(), // Must be string
+          network: "base", // ✅ Use "base" as required by validator
+          maxAmountRequired: PRICE_PER_SIGNAL.toString(),
           resource: "/api/signal/create",
           description: "Pay to create trading signal",
           mimeType: "application/json",
-          payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // Token account, not wallet
+          payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // Already string ✅
           maxTimeoutSeconds: 300,
-          asset: USDC_MINT.toBase58(), // Token mint address
-
-          // ✅ CRITICAL: Add the 'extra' field with proper structure
+          asset: USDC_MINT.toBase58(), // Already string ✅
           extra: {
+            actualNetwork: "solana-devnet", // Real network here
             recipientWallet: SERVER_WALLET.toBase58(),
           },
         },
