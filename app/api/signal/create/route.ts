@@ -378,6 +378,7 @@ async function handleRequest(req: NextRequest) {
           payTo: SERVER_TOKEN_ACCOUNT.toBase58(),
           maxTimeoutSeconds: 300,
           asset: USDC_MINT.toBase58(),
+          outputSchema: null,
           extra: {
             recipientWallet: SERVER_WALLET.toBase58(),
           },
