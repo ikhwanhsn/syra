@@ -366,92 +366,72 @@ async function handleRequest(req: NextRequest) {
 
   return NextResponse.json(
     {
-      x402Version: 1,
+      x402Version: 1, // ADD: Required version field
       accepts: [
+        // CHANGE: 'payment' → 'accepts' array
         {
           scheme: "exact",
-          network: "solana-devnet",
-          maxAmountRequired: PRICE_PER_SIGNAL.toString(),
-          resource: "https://syraa.fun/api/signal/create", // ⚠️ Make this FULL URL
+          network: "solana-devnet", // CHANGE: Specify network format
+          maxAmountRequired: PRICE_PER_SIGNAL.toString(), // CHANGE: Must be string
+          resource: "/api/signal/create", // ADD: Your endpoint path
           description: "Pay to create trading signal",
-          mimeType: "application/json",
-          payTo: SERVER_TOKEN_ACCOUNT.toBase58(),
-          maxTimeoutSeconds: 300,
-          asset: USDC_MINT.toBase58(),
+          mimeType: "application/json", // ADD: Content type
+          payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // CHANGE: Use token account
+          maxTimeoutSeconds: 300, // ADD: Timeout (e.g., 5 minutes)
+          asset: USDC_MINT.toBase58(), // ADD: Token mint address
+
+          extra: {
+            recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
+          },
+
+          // ADD: Optional schema for better documentation
+          outputSchema: {
+            input: {
+              type: "http",
+              method: "POST",
+              bodyType: "json",
+              bodyFields: {
+                wallet: {
+                  type: "string",
+                  required: true,
+                  description: "Wallet address",
+                },
+                signal: {
+                  type: "string",
+                  required: true,
+                  description: "Signal type (e.g., BUY/SELL)",
+                },
+                token: {
+                  type: "string",
+                  required: true,
+                  description: "Token address",
+                },
+                ticker: {
+                  type: "string",
+                  required: true,
+                  description: "Token ticker symbol",
+                },
+                entryPrice: {
+                  type: "number",
+                  required: true,
+                  description: "Entry price",
+                },
+                stopLoss: {
+                  type: "number",
+                  required: true,
+                  description: "Stop loss price",
+                },
+                takeProfit: {
+                  type: "number",
+                  required: true,
+                  description: "Take profit price",
+                },
+              },
+            },
+          },
         },
       ],
     },
     { status: 402 }
   );
-
-  // return NextResponse.json(
-  //   {
-  //     x402Version: 1, // ADD: Required version field
-  //     accepts: [
-  //       // CHANGE: 'payment' → 'accepts' array
-  //       {
-  //         scheme: "exact",
-  //         network: "solana-devnet", // CHANGE: Specify network format
-  //         maxAmountRequired: PRICE_PER_SIGNAL.toString(), // CHANGE: Must be string
-  //         resource: "/api/signal/create", // ADD: Your endpoint path
-  //         description: "Pay to create trading signal",
-  //         mimeType: "application/json", // ADD: Content type
-  //         payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // CHANGE: Use token account
-  //         maxTimeoutSeconds: 300, // ADD: Timeout (e.g., 5 minutes)
-  //         asset: USDC_MINT.toBase58(), // ADD: Token mint address
-
-  //         extra: {
-  //           recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
-  //         },
-
-  //         // ADD: Optional schema for better documentation
-  //         outputSchema: {
-  //           input: {
-  //             type: "http",
-  //             method: "POST",
-  //             bodyType: "json",
-  //             bodyFields: {
-  //               wallet: {
-  //                 type: "string",
-  //                 required: true,
-  //                 description: "Wallet address",
-  //               },
-  //               signal: {
-  //                 type: "string",
-  //                 required: true,
-  //                 description: "Signal type (e.g., BUY/SELL)",
-  //               },
-  //               token: {
-  //                 type: "string",
-  //                 required: true,
-  //                 description: "Token address",
-  //               },
-  //               ticker: {
-  //                 type: "string",
-  //                 required: true,
-  //                 description: "Token ticker symbol",
-  //               },
-  //               entryPrice: {
-  //                 type: "number",
-  //                 required: true,
-  //                 description: "Entry price",
-  //               },
-  //               stopLoss: {
-  //                 type: "number",
-  //                 required: true,
-  //                 description: "Stop loss price",
-  //               },
-  //               takeProfit: {
-  //                 type: "number",
-  //                 required: true,
-  //                 description: "Take profit price",
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     ],
-  //   },
-  //   { status: 402 }
-  // );
 }
