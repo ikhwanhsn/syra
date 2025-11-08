@@ -11,7 +11,10 @@ import clientPromise from "@/lib/mongodb";
 const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
 // Devnet USDC
-const USDC_MINT = new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+// const USDC_MINT = new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+
+// Mainnet USDC mint
+const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 
 // Your server's wallet (receives payments)
 const SERVER_WALLET = new PublicKey(
@@ -370,7 +373,7 @@ async function handleRequest(req: NextRequest) {
       accepts: [
         {
           scheme: "exact",
-          network: "solana-devnet",
+          network: "solana-mainnet",
           maxAmountRequired: PRICE_PER_SIGNAL.toString(),
           resource: "https://syraa.fun/api/signal/create", // ⚠️ Make this FULL URL
           description: "Pay to create trading signal",
