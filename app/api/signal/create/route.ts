@@ -1,287 +1,3 @@
-// // app/api/create-signal/route.ts
-// import { NextRequest, NextResponse } from "next/server";
-// import { Connection, PublicKey, Transaction } from "@solana/web3.js";
-// import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
-// import clientPromise from "@/lib/mongodb";
-
-// const connection = new Connection("https://api.devnet.solana.com", "confirmed");
-
-// // Devnet USDC
-// const USDC_MINT = new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
-
-// // Your server's wallet (receives payments)
-// const SERVER_WALLET = new PublicKey(
-//   "Cp5yFGYx88EEuUjhDAaQzXHrgxvVeYEWixtRnLFE81K4"
-// );
-
-// // Price per signal creation
-// const PRICE_PER_SIGNAL = 100; // 0.0001 USDC
-
-// // In-memory signal storage (use database in production!)
-// const signals: any[] = [];
-
-// // GET: Return payment quote (402)
-// // POST: Create signal with payment verification
-// export async function GET(req: NextRequest) {
-//   return handleRequest(req);
-// }
-
-// export async function POST(req: NextRequest) {
-//   return handleRequest(req);
-// }
-
-// async function handleRequest(req: NextRequest) {
-//   const xPaymentHeader = req.headers.get("X-Payment");
-
-//   // Get server's USDC token account
-//   const SERVER_TOKEN_ACCOUNT = await getAssociatedTokenAddress(
-//     USDC_MINT,
-//     SERVER_WALLET
-//   );
-
-//   // ============================================
-//   // WITH PAYMENT: Verify and create signal
-//   // ============================================
-//   if (xPaymentHeader) {
-//     try {
-//       // Parse payment proof
-//       const paymentData = JSON.parse(
-//         Buffer.from(xPaymentHeader, "base64").toString("utf-8")
-//       );
-
-//       console.log("📩 Received payment proof");
-//       console.log("Network:", paymentData.network);
-
-//       // Deserialize transaction
-//       const txBuffer = Buffer.from(
-//         paymentData.payload.serializedTransaction,
-//         "base64"
-//       );
-//       const tx = Transaction.from(txBuffer);
-
-//       // VERIFY: Check if transaction sends USDC to us
-//       console.log("🔍 Verifying USDC transfer...");
-//       let validTransfer = false;
-//       let transferAmount = 0;
-
-//       for (const ix of tx.instructions) {
-//         if (ix.programId.equals(TOKEN_PROGRAM_ID)) {
-//           // Check if it's a Transfer instruction (type = 3)
-//           if (ix.data.length >= 9 && ix.data[0] === 3) {
-//             transferAmount = Number(ix.data.readBigUInt64LE(1));
-
-//             // Verify destination and amount
-//             if (ix.keys.length >= 2) {
-//               const destAccount = ix.keys[1].pubkey;
-//               if (
-//                 destAccount.equals(SERVER_TOKEN_ACCOUNT) &&
-//                 transferAmount >= PRICE_PER_SIGNAL
-//               ) {
-//                 validTransfer = true;
-//                 console.log(
-//                   `✅ Valid transfer: ${transferAmount / 1000000} USDC`
-//                 );
-//                 break;
-//               }
-//             }
-//           }
-//         }
-//       }
-
-//       if (!validTransfer) {
-//         return NextResponse.json(
-//           { error: "Invalid payment transaction" },
-//           { status: 402 }
-//         );
-//       }
-
-//       // SIMULATE: Test transaction before submitting
-//       console.log("🧪 Simulating transaction...");
-//       const simulation = await connection.simulateTransaction(tx);
-//       if (simulation.value.err) {
-//         return NextResponse.json(
-//           {
-//             error: "Transaction simulation failed",
-//             details: simulation.value.err,
-//           },
-//           { status: 402 }
-//         );
-//       }
-
-//       // SUBMIT: Send to blockchain
-//       console.log("📤 Submitting transaction...");
-//       const signature = await connection.sendRawTransaction(txBuffer, {
-//         skipPreflight: false,
-//         preflightCommitment: "confirmed",
-//       });
-
-//       // WAIT: For confirmation
-//       const confirmation = await connection.confirmTransaction(
-//         signature,
-//         "confirmed"
-//       );
-
-//       if (confirmation.value.err) {
-//         return NextResponse.json(
-//           { error: "Transaction failed on-chain" },
-//           { status: 402 }
-//         );
-//       }
-
-//       // VERIFY: Check actual balance change
-//       const confirmedTx = await connection.getTransaction(signature, {
-//         commitment: "confirmed",
-//         maxSupportedTransactionVersion: 0,
-//       });
-
-//       if (!confirmedTx) {
-//         return NextResponse.json(
-//           { error: "Could not fetch confirmed transaction" },
-//           { status: 402 }
-//         );
-//       }
-
-//       const postTokenBalances = confirmedTx.meta?.postTokenBalances ?? [];
-//       const preTokenBalances = confirmedTx.meta?.preTokenBalances ?? [];
-
-//       let amountReceived = 0;
-//       for (const postBal of postTokenBalances) {
-//         const preBal = preTokenBalances.find(
-//           (pre) => pre.accountIndex === postBal.accountIndex
-//         );
-
-//         const accountKey =
-//           confirmedTx.transaction.message.staticAccountKeys[
-//             postBal.accountIndex
-//           ];
-
-//         if (accountKey && accountKey.equals(SERVER_TOKEN_ACCOUNT)) {
-//           const postAmount = postBal.uiTokenAmount.amount;
-//           const preAmount = preBal?.uiTokenAmount.amount ?? "0";
-//           amountReceived = Number(postAmount) - Number(preAmount);
-//           break;
-//         }
-//       }
-
-//       if (amountReceived < PRICE_PER_SIGNAL) {
-//         return NextResponse.json(
-//           { error: "Insufficient payment received" },
-//           { status: 402 }
-//         );
-//       }
-
-//       // ✅ PAYMENT VERIFIED! CREATE SIGNAL
-//       console.log(`💰 Payment verified: ${amountReceived / 1000000} USDC`);
-
-//       // Parse signal data from request body (if POST)
-//       //   let signalData = { type: "BUY", symbol: "AUTO", price: 0 };
-//       //   try {
-//       //     const body = await req.json();
-//       //     signalData = body;
-//       //   } catch {
-//       //     // If no body, use defaults
-//       //   }
-
-//       //   // Create signal
-//       //   const newSignal = {
-//       //     id: signals.length + 1,
-//       //     type: signalData.type,
-//       //     symbol: signalData.symbol,
-//       //     price: signalData.price,
-//       //     createdAt: new Date().toISOString(),
-//       //     paidAmount: amountReceived / 1000000,
-//       //     txSignature: signature,
-//       //   };
-
-//       //   signals.push(newSignal);
-
-//       //   console.log("🎯 Signal created:", newSignal);
-
-//       const {
-//         wallet,
-//         signal,
-//         token,
-//         ticker,
-//         entryPrice,
-//         stopLoss,
-//         takeProfit,
-//       } = await req.json();
-//       const newSignal = {
-//         wallet,
-//         signal,
-//         token,
-//         ticker,
-//         entryPrice,
-//         stopLoss,
-//         takeProfit,
-//         status: "Pending",
-//         createdAt: new Date().toISOString(),
-//       };
-
-//       const client = await clientPromise;
-//       const db = client.db("syra");
-//       const createSignal = await db.collection("signals").insertOne(newSignal);
-
-//       if (!createSignal) {
-//         return NextResponse.json(
-//           { error: "Signal creation failed" },
-//           { status: 402 }
-//         );
-//       }
-
-//       // Return success with signal details
-//       return NextResponse.json({
-//         success: true,
-//         message: "Signal created successfully!",
-//         signal: newSignal,
-//         paymentDetails: {
-//           signature,
-//           amount: amountReceived,
-//           amountUSDC: amountReceived / 1000000,
-//           recipient: SERVER_TOKEN_ACCOUNT.toBase58(),
-//           explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
-//         },
-//       });
-//     } catch (error) {
-//       console.error("❌ Payment verification error:", error);
-//       return NextResponse.json(
-//         {
-//           error: "Payment verification failed",
-//           details: error instanceof Error ? error.message : "Unknown error",
-//         },
-//         { status: 402 }
-//       );
-//     }
-//   }
-
-//   // ============================================
-//   // NO PAYMENT: Return payment quote (402)
-//   // ============================================
-//   console.log("💳 New payment quote requested");
-
-//   return NextResponse.json(
-//     {
-//       message: "Payment required to create signal",
-//       payment: {
-//         recipientWallet: SERVER_WALLET.toBase58(),
-//         tokenAccount: SERVER_TOKEN_ACCOUNT.toBase58(),
-//         mint: USDC_MINT.toBase58(),
-//         amount: PRICE_PER_SIGNAL,
-//         amountUSDC: PRICE_PER_SIGNAL / 1000000,
-//         cluster: "devnet",
-//         description: "Pay to create trading signal",
-//       },
-//     },
-//     { status: 402 }
-//   );
-// }
-
-// // Optional: GET all signals (free endpoint)
-// export async function getAllSignals() {
-//   return signals;
-// }
-
-// app/api/create-signal/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
   Connection,
@@ -650,16 +366,71 @@ async function handleRequest(req: NextRequest) {
 
   return NextResponse.json(
     {
-      message: "Payment required to create signal",
-      payment: {
-        recipientWallet: SERVER_WALLET.toBase58(),
-        tokenAccount: SERVER_TOKEN_ACCOUNT.toBase58(),
-        mint: USDC_MINT.toBase58(),
-        amount: PRICE_PER_SIGNAL,
-        amountUSDC: PRICE_PER_SIGNAL / 1000000,
-        cluster: "devnet",
-        description: "Pay to create trading signal",
-      },
+      x402Version: 1, // ADD: Required version field
+      accepts: [
+        // CHANGE: 'payment' → 'accepts' array
+        {
+          scheme: "exact",
+          network: "solana-devnet", // CHANGE: Specify network format
+          maxAmountRequired: PRICE_PER_SIGNAL.toString(), // CHANGE: Must be string
+          resource: "/api/signals", // ADD: Your endpoint path
+          description: "Pay to create trading signal",
+          mimeType: "application/json", // ADD: Content type
+          payTo: SERVER_TOKEN_ACCOUNT.toBase58(), // CHANGE: Use token account
+          maxTimeoutSeconds: 300, // ADD: Timeout (e.g., 5 minutes)
+          asset: USDC_MINT.toBase58(), // ADD: Token mint address
+
+          extra: {
+            recipientWallet: SERVER_WALLET.toBase58(), // ADD THIS
+          },
+
+          // ADD: Optional schema for better documentation
+          outputSchema: {
+            input: {
+              type: "http",
+              method: "POST",
+              bodyType: "json",
+              bodyFields: {
+                wallet: {
+                  type: "string",
+                  required: true,
+                  description: "Wallet address",
+                },
+                signal: {
+                  type: "string",
+                  required: true,
+                  description: "Signal type (e.g., BUY/SELL)",
+                },
+                token: {
+                  type: "string",
+                  required: true,
+                  description: "Token address",
+                },
+                ticker: {
+                  type: "string",
+                  required: true,
+                  description: "Token ticker symbol",
+                },
+                entryPrice: {
+                  type: "number",
+                  required: true,
+                  description: "Entry price",
+                },
+                stopLoss: {
+                  type: "number",
+                  required: true,
+                  description: "Stop loss price",
+                },
+                takeProfit: {
+                  type: "number",
+                  required: true,
+                  description: "Take profit price",
+                },
+              },
+            },
+          },
+        },
+      ],
     },
     { status: 402 }
   );

@@ -1,152 +1,13 @@
-// "use client";
-
-// import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-// import { Transaction, PublicKey } from "@solana/web3.js";
-// import {
-//   createTransferInstruction,
-//   getAssociatedTokenAddress,
-//   TOKEN_PROGRAM_ID,
-// } from "@solana/spl-token";
-// import { useState } from "react";
-
-// export function CreateSignalButton() {
-//   const { connection } = useConnection();
-//   const { publicKey, signTransaction } = useWallet();
-//   const [loading, setLoading] = useState(false);
-
-//   async function createSignalWithPayment() {
-//     if (!publicKey || !signTransaction) {
-//       alert("Please connect your wallet first!");
-//       return;
-//     }
-
-//     setLoading(true);
-//     try {
-//       // STEP 1: Ask server "how much to pay?"
-//       console.log("1. Requesting payment info from server...");
-//       const quoteRes = await fetch("/api/create-signal", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           wallet: publicKey.toBase58(),
-//           signal: "Buy",
-//           token: "USDC",
-//           ticker: "USDC",
-//           entryPrice: 100,
-//           stopLoss: 90,
-//           takeProfit: 110,
-//         }),
-//       });
-//       const quote = await quoteRes.json();
-
-//       if (quoteRes.status !== 402) {
-//         throw new Error("Expected 402 payment required");
-//       }
-
-//       console.log("Payment required:", quote.payment);
-
-//       // STEP 2: Build USDC transfer transaction
-//       console.log("2. Building transaction...");
-//       const mint = new PublicKey(quote.payment.mint);
-//       const recipientTokenAccount = new PublicKey(quote.payment.tokenAccount);
-
-//       // Get user's USDC token account
-//       const senderTokenAccount = await getAssociatedTokenAddress(
-//         mint,
-//         publicKey
-//       );
-
-//       // Create transaction
-//       const { blockhash } = await connection.getLatestBlockhash();
-//       const tx = new Transaction({
-//         feePayer: publicKey,
-//         blockhash,
-//         lastValidBlockHeight: (await connection.getLatestBlockhash())
-//           .lastValidBlockHeight,
-//       });
-
-//       // Add USDC transfer instruction
-//       tx.add(
-//         createTransferInstruction(
-//           senderTokenAccount, // from user's USDC account
-//           recipientTokenAccount, // to server's USDC account
-//           publicKey, // user is the owner
-//           quote.payment.amount // amount in smallest units
-//         )
-//       );
-
-//       // STEP 3: Ask user to sign (WALLET POPUP APPEARS HERE!)
-//       console.log("3. Requesting wallet signature...");
-//       const signedTx = await signTransaction(tx);
-
-//       // STEP 4: Send signed transaction to server
-//       console.log("4. Sending payment proof to server...");
-//       const serializedTx = signedTx.serialize().toString("base64");
-
-//       const paymentProof = {
-//         x402Version: 1,
-//         scheme: "exact",
-//         network:
-//           quote.payment.cluster === "devnet"
-//             ? "solana-devnet"
-//             : "solana-mainnet",
-//         payload: { serializedTransaction: serializedTx },
-//       };
-
-//       const xPaymentHeader = Buffer.from(JSON.stringify(paymentProof)).toString(
-//         "base64"
-//       );
-
-//       // STEP 5: Server verifies and creates signal
-//       console.log("5. Server verifying payment and creating signal...");
-//       const response = await fetch("/api/create-signal", {
-//         headers: { "X-Payment": xPaymentHeader },
-//       });
-
-//       const result = await response.json();
-
-//       if (response.ok) {
-//         alert(`Signal created! Paid: ${result.paymentDetails.amountUSDC} USDC`);
-//         console.log("Success:", result);
-//       } else {
-//         alert(`Failed: ${result.error}`);
-//       }
-//     } catch (error) {
-//       console.error("Error:", error);
-//       alert(
-//         `Error: ${error instanceof Error ? error.message : "Unknown error"}`
-//       );
-//     } finally {
-//       setLoading(false);
-//     }
-//   }
-
-//   return (
-//     <button
-//       onClick={createSignalWithPayment}
-//       disabled={!publicKey || loading}
-//       className="bg-green-500 text-white px-6 py-3 rounded-lg disabled:bg-gray-400"
-//     >
-//       {loading
-//         ? "Creating Signal..."
-//         : "Create Signal (Buy/Long) - 0.0001 USDC"}
-//     </button>
-//   );
-// }
-
 "use client";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Transaction, PublicKey, SystemProgram } from "@solana/web3.js";
+import { Transaction, PublicKey } from "@solana/web3.js";
 import {
   createTransferInstruction,
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
   getAccount,
   TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { useState } from "react";
 import { AnimateIcon } from "../animate-ui/icons/icon";
@@ -364,12 +225,14 @@ export function CreateSignalButton({
         throw new Error("Expected 402 payment required");
       }
 
-      console.log("💳 Payment required:", quote.payment);
+      console.log("💳 Payment required:", quote.accepts[0]);
 
       // STEP 2: Check and setup token accounts
       console.log("2️⃣ Checking token accounts...");
-      const mint = new PublicKey(quote.payment.mint);
-      const recipientWallet = new PublicKey(quote.payment.recipientWallet);
+      const mint = new PublicKey(quote.accepts[0].asset);
+      const recipientWallet = new PublicKey(
+        quote.accepts[0].extra.recipientWallet
+      );
 
       // Get associated token accounts
       const senderTokenAccount = await getAssociatedTokenAddress(
@@ -439,19 +302,20 @@ export function CreateSignalButton({
         );
       }
 
-      // Check sender's USDC balance if account exists
       if (senderAccountExists) {
         try {
           const accountInfo = await getAccount(connection, senderTokenAccount);
-          const balance = Number(accountInfo.amount);
+          const balance = Number(accountInfo.amount); // accountInfo.amount is already a bigint
           console.log(`💰 Your USDC balance: ${balance / 1000000} USDC`);
 
-          if (balance < quote.payment.amount) {
+          const requiredAmount = Number(quote.accepts[0].maxAmountRequired);
+
+          if (balance < requiredAmount) {
             throw new Error(
               `Insufficient USDC balance. You have ${
                 balance / 1000000
               } USDC but need ${
-                quote.payment.amount / 1000000
+                requiredAmount / 1000000
               } USDC.\n\nGet devnet USDC from: https://spl-token-faucet.com/`
             );
           }
@@ -464,25 +328,21 @@ export function CreateSignalButton({
           }
           console.warn("Could not check balance:", error);
         }
-      } else {
-        // New account - inform user they need to fund it
-        toast.error("Please fund your USDC account first, claim faucet!");
-        return;
       }
 
-      // Add USDC transfer instruction
+      const transferAmount = Number(quote.accepts[0].maxAmountRequired);
       tx.add(
         createTransferInstruction(
-          senderTokenAccount, // from
-          recipientTokenAccount, // to
-          publicKey, // owner
-          quote.payment.amount, // amount
-          [], // multi-signers
+          senderTokenAccount,
+          recipientTokenAccount,
+          publicKey,
+          transferAmount,
+          [],
           TOKEN_PROGRAM_ID
         )
       );
 
-      console.log(`💸 Transfer amount: ${quote.payment.amount / 1000000} USDC`);
+      console.log(`💸 Transfer amount: ${transferAmount / 1000000} USDC`);
 
       // Get transaction size for debugging
       const txSize = tx.serialize({ requireAllSignatures: false }).length;
@@ -539,7 +399,10 @@ export function CreateSignalButton({
         x402Version: 1,
         scheme: "exact",
         network: "solana-devnet",
-        payload: { serializedTransaction: serializedTx },
+        payer: publicKey.toBase58(), // ADD: Payer address
+        payload: {
+          serializedTransaction: serializedTx,
+        },
       };
 
       const xPaymentHeader = Buffer.from(JSON.stringify(paymentProof)).toString(

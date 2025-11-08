@@ -5,11 +5,12 @@ import { Bot } from "@/components/animate-ui/icons/bot";
 import { AnimateIcon } from "@/components/animate-ui/icons/icon";
 import { Blocks } from "@/components/animate-ui/icons/blocks";
 import Provider from "./Provider";
+import X402FlowDiagram from "@/components/home/X402FlowDiagram";
 
 export default function Home() {
   return (
     <Provider>
-      <div className="z-10 flex flex-col items-center justify-center text-center">
+      <div className="z-10 flex flex-col items-center justify-center text-center min-h-screen">
         <h1 className="text-6xl font-bold text-zinc-50">
           Trade smarter, faster,{" "}
           <TextLoop
@@ -83,6 +84,7 @@ export default function Home() {
           </Link>
         </div>
       </div>
+      {/* <X402FlowDiagram /> */}
     </Provider>
   );
 }

@@ -47,21 +47,6 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       toast.error(submit.error);
       setIsSubmittingFeedback(false);
     }
-    // toast.promise<{ name: string }>(
-    //   () =>
-    //     new Promise((resolve) =>
-    //       setTimeout(() => {
-    //         resolve({ name: "Feedback" });
-    //         setFeedbackOpen(false);
-    //         setIsSubmittingFeedback(false);
-    //       }, 2000)
-    //     ),
-    //   {
-    //     loading: "Submitting feedback...",
-    //     success: (data) => `Thanks for your feedback, it's matter to us!`,
-    //     error: "Error",
-    //   }
-    // );
   };
 
   useEffect(() => {
