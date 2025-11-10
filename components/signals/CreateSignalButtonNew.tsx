@@ -72,7 +72,7 @@ export function CreateSignalButtonNew() {
           </Button>
         </AnimateIcon>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-9/12 overflow-y-scroll">
         <DialogHeader>
           <DialogTitle className="text-2xl">Create Trading Signal</DialogTitle>
           <DialogDescription>
@@ -273,24 +273,6 @@ export function CreateSignalButtonNew() {
               Cancel
             </Button>
           </DialogClose>
-          {/* <Button
-            variant="default"
-            className="cursor-pointer"
-            disabled={
-              !formData.ticker ||
-              !formData.entryPrice ||
-              !formData.stopLoss ||
-              !formData.takeProfit
-            }
-            onClick={() => {
-              const click = document.getElementById(
-                "my_modal_2"
-              ) as HTMLDialogElement;
-              click.showModal();
-            }}
-          >
-            Create Signal
-          </Button> */}
           <CreateSignalButton
             onClose={() => setOpen(false)}
             formData={formData}

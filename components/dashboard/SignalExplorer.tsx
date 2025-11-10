@@ -198,7 +198,7 @@ const SignalExplorer = () => {
           <Input
             type="search"
             placeholder="Search user, signal, data..."
-            className="h-12 w-full sm:w-64 md:w-96 placeholder:text-base !text-lg"
+            className="h-12 w-full sm:w-64 md:w-96 placeholder:text-base text-lg!"
             value={valueSearch}
             onChange={handleInputSearch}
           />

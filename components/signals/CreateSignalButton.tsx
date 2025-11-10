@@ -502,7 +502,7 @@ export function CreateSignalButton({
   return (
     <AnimateIcon animateOnHover>
       <Button
-        className="cursor-pointer"
+        className="cursor-pointer w-full"
         onClick={verifySignal}
         disabled={loading}
       >

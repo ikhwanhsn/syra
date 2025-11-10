@@ -114,10 +114,10 @@ export default function Provider({ children }: { children: React.ReactNode }) {
             alt="Syra Logo"
             width={128}
             height={128}
-            className="rounded-full cursor-pointer"
+            className="rounded-full cursor-pointer w-24 h-24 sm:h-32 sm:w-32"
           />
         </Link>
-        <div className="absolute top-15 right-15 flex gap-5 z-20">
+        <div className="absolute top-8 sm:top-12 right-5 sm:right-15 flex gap-5 z-20">
           {links.map((link) => {
             if (link.href === "/feedback") {
               return null;

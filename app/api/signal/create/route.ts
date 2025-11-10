@@ -421,128 +421,12 @@ async function createUsingSyraAI(req: NextRequest, body?: any) {
   );
 }
 
-// async function createUsingPayAI(req: NextRequest, body?: any) {
-//   // 1. Extract payment header
-//   const paymentHeader = x402.extractPayment(req.headers);
-
-//   // 2. Create payment requirements using x402 RouteConfig format
-//   const paymentRequirements = await x402.createPaymentRequirements({
-//     price: {
-//       amount: "100", // $2.50 USDC (in micro-units, as string)
-//       asset: {
-//         address: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", // USDC devnet mint address
-//         decimals: 6, // USDC has 6 decimals
-//       },
-//     },
-//     network: "solana-devnet",
-//     config: {
-//       description: "AI Chat Request",
-//       resource: `https://syraa.fun/api/signal/create`,
-//     },
-//   });
-
-//   if (!paymentHeader) {
-//     // Return 402 with payment requirements
-//     const response = x402.create402Response(paymentRequirements);
-//     return NextResponse.json(response.body, { status: response.status });
-//   }
-
-//   // 3. Verify payment
-//   const verified = await x402.verifyPayment(paymentHeader, paymentRequirements);
-//   if (!verified) {
-//     return NextResponse.json({ error: "Invalid payment" }, { status: 402 });
-//   }
-
-//   // 4. Process your business logic
-//   const xPaymentHeader = req.headers.get("X-Payment");
-//   if (!xPaymentHeader)
-//     return NextResponse.json({ error: "Invalid payment" }, { status: 402 });
-//   const paymentData = JSON.parse(
-//     Buffer.from(xPaymentHeader, "base64").toString("utf-8")
-//   );
-
-//   console.log("📩 Received payment proof");
-//   console.log("Network:", paymentData.network);
-
-//   // Deserialize transaction - handle both legacy and versioned transactions
-//   const txBuffer = Buffer.from(
-//     paymentData.payload.serializedTransaction,
-//     "base64"
-//   );
-
-//   const signature = await connection.sendRawTransaction(txBuffer, {
-//     skipPreflight: false,
-//     preflightCommitment: "confirmed",
-//     maxRetries: 3,
-//   });
-
-//   const { wallet, signal, token, ticker, entryPrice, stopLoss, takeProfit } =
-//     body;
-//     if (!wallet || !signal || !token || !ticker || !entryPrice || !stopLoss || !takeProfit) {
-//       return NextResponse.json(
-//         { error: "Missing required fields" },
-//         { status: 400 }
-//       );
-//     }
-
-//   const newSignal = {
-//       wallet,
-//       signal,
-//       token,
-//       ticker,
-//       entryPrice: Number(entryPrice),
-//       stopLoss: Number(stopLoss),
-//       takeProfit: Number(takeProfit),
-//       status: "Pending",
-//       createdAt: new Date(),
-//       paymentSignature: "payai-verified", // PayAI handles internally
-//       paidAmount: PRICE_PER_SIGNAL / 1000000,
-//       facilitator: "payai",
-//     };
-
-//   const client = await clientPromise;
-//   const db = client.db("syra");
-//   const createSignal = await db.collection("signals").insertOne(newSignal);
-
-//   if (!createSignal.acknowledged) {
-//     return NextResponse.json(
-//       { error: "Signal creation failed in database" },
-//       { status: 500 }
-//     );
-//   }
-
-//   console.log("🎯 Signal created successfully");
-
-//   // const result = {
-//   //   message: "Payment verified and processed successfully",
-//   // };
-
-//   // 5. Settle payment
-//   await x402.settlePayment(paymentHeader, paymentRequirements);
-
-//   // 6. Return response
-//   // Return success with signal details
-//   return NextResponse.json({
-//     success: true,
-//     message: "Signal created successfully!",
-//     signal: {
-//       ...newSignal,
-//       _id: createSignal.insertedId,
-//     },
-//     paymentDetails: {
-//       signature,
-//       amount: PRICE_PER_SIGNAL,
-//       amountUSDC: PRICE_PER_SIGNAL / 1000000,
-//       recipient: paymentData.payload.recipientWallet,
-//       explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
-//     },
-//   });
-// }
-
 async function createUsingPayAI(req: NextRequest, body?: any) {
   try {
     // 1. Extract payment header
     const paymentHeader = x402.extractPayment(req.headers);
+
+    console.log("paymentHeader", paymentHeader);
 
     // 2. Create payment requirements
     const paymentRequirements = await x402.createPaymentRequirements({
@@ -560,6 +444,8 @@ async function createUsingPayAI(req: NextRequest, body?: any) {
       },
     });
 
+    console.log("paymentRequirements", paymentRequirements);
+
     if (!paymentHeader) {
       // Return 402 with payment requirements
       const response = x402.create402Response(paymentRequirements);
@@ -574,6 +460,8 @@ async function createUsingPayAI(req: NextRequest, body?: any) {
     if (!verified) {
       return NextResponse.json({ error: "Invalid payment" }, { status: 402 });
     }
+
+    console.log("verified", verified);
 
     // 4. Get signal data from body parameter
     const { wallet, signal, token, ticker, entryPrice, stopLoss, takeProfit } =
@@ -600,6 +488,8 @@ async function createUsingPayAI(req: NextRequest, body?: any) {
       paymentHeader,
       paymentRequirements
     );
+
+    console.log("settlementResult", settlementResult);
 
     // The facilitator returns the transaction signature in the response
     const transactionSignature =
@@ -638,7 +528,11 @@ async function createUsingPayAI(req: NextRequest, body?: any) {
     console.log("🎯 Signal created successfully via PayAI");
 
     // 7. Settle payment with PayAI
-    await x402.settlePayment(paymentHeader, paymentRequirements);
+    const settleResult = await x402.settlePayment(
+      paymentHeader,
+      paymentRequirements
+    );
+    console.log("settleResult", settleResult);
 
     // 8. Return success
     return NextResponse.json({

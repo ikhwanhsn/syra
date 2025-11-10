@@ -57,7 +57,7 @@ const ATXPComponent = () => {
         </div>
       </div>
       {!result && (
-        <div className="grid grid-cols-2 gap-1 mt-3">
+        <div className="sm:grid grid-cols-2 gap-1 mt-3">
           <div className="rounded-md bg-gray-50 p-4 flex flex-col gap-1">
             <h3 className="text-xl font-bold text-gray-800 mb-1">Sundown</h3>
             {sundown?.success &&
@@ -89,10 +89,12 @@ const ATXPComponent = () => {
         </div>
       )}
       <div>
-        <div
-          className="rounded-md bg-gray-50 p-4 flex flex-col gap-1 mt-3"
-          dangerouslySetInnerHTML={{ __html: result || "No result" }}
-        />
+        {result && (
+          <div
+            className="rounded-md bg-gray-50 p-4 flex flex-col gap-1 mt-3"
+            dangerouslySetInnerHTML={{ __html: result || "" }}
+          />
+        )}
         {/* {citations.length > 0 && (
           <div className="rounded-md bg-gray-50 p-4 flex flex-col gap-1">
             <h3 className="text-xl font-bold text-gray-800 mb-1">Citations</h3>
