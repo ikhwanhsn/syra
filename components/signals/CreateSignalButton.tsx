@@ -14,6 +14,7 @@ import { AnimateIcon } from "../animate-ui/icons/icon";
 import { Button } from "../ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { createX402Client } from "x402-solana/client";
 
 export function CreateSignalButton({
   onClose,
@@ -26,7 +27,8 @@ export function CreateSignalButton({
 }) {
   const queryClient = useQueryClient();
   const { connection } = useConnection();
-  const { publicKey, signTransaction, connected } = useWallet();
+  const wallet: any = useWallet();
+  const { publicKey, signTransaction } = useWallet();
   const [loading, setLoading] = useState(false);
   const { isError: isErrorProfile } = useQuery({
     queryKey: ["profileDataSignal", publicKey?.toBase58()],
@@ -52,8 +54,7 @@ export function CreateSignalButton({
       ).then((res) => res.json()),
   });
 
-  async function createSignalWithPayment() {
-    console.log("isErrorProfile", isErrorProfile);
+  async function verifySignal() {
     if (isErrorProfile) {
       toast.error("Please setting up your profile on profile page first!");
       return;
@@ -172,7 +173,79 @@ export function CreateSignalButton({
       }
     }
 
+    const click = document.getElementById("my_modal_2") as HTMLDialogElement;
+    click.showModal();
+  }
+
+  const paymentWithPayAI = async () => {
+    if (!verifySignal()) return;
+
     setLoading(true);
+    try {
+      const client = createX402Client({
+        wallet,
+        network: "solana-devnet",
+        maxPaymentAmount: BigInt(10_000_000),
+      });
+
+      const response = await client.fetch("/api/signal/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          facilitator: "payai",
+          wallet: publicKey?.toBase58(),
+          signal: formData.signal,
+          token: formData.token,
+          ticker: formData.ticker,
+          entryPrice: formData.entryPrice,
+          stopLoss: formData.stopLoss,
+          takeProfit: formData.takeProfit,
+        }),
+      });
+
+      // Check if response is ok before parsing
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`PayAI request failed: ${errorText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Signal created successfully!");
+        queryClient.invalidateQueries({ queryKey: ["repoDataSignal"] });
+        onClose();
+        setFormData({
+          wallet: "",
+          signal: "",
+          token: "",
+          ticker: "",
+          entryPrice: "",
+          stopLoss: "",
+          takeProfit: "",
+        });
+      }
+    } catch (error) {
+      console.error("PayAI error:", error);
+      toast.error(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  async function paymentWithSyraAI() {
+    if (!verifySignal()) return;
+    if (!publicKey || !signTransaction) {
+      toast.error("Please connect your wallet first!");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       // STEP 1: Ask server "how much to pay?"
       console.log("1️⃣ Requesting payment info from server...");
@@ -345,6 +418,7 @@ export function CreateSignalButton({
 
       // STEP 5: Prepare signal data
       const signalData = {
+        facilitator: "syraai",
         wallet: publicKey.toBase58(),
         signal: formData.signal,
         token: formData.token,
@@ -429,11 +503,38 @@ export function CreateSignalButton({
     <AnimateIcon animateOnHover>
       <Button
         className="cursor-pointer"
-        onClick={createSignalWithPayment}
+        onClick={verifySignal}
         disabled={loading}
       >
         {loading ? "Submitting..." : "Submit"}
       </Button>
+      <dialog id="my_modal_2" className="modal">
+        <div className="modal-box bg-white">
+          <h3 className="font-bold text-lg text-center">Choose Your Payment</h3>
+          <div className="flex items-center justify-center gap-3 mt-7">
+            <Button
+              className="cursor-pointer"
+              onClick={() => {
+                paymentWithSyraAI();
+              }}
+            >
+              Pay with Syra AI
+            </Button>
+            <Button
+              className="cursor-pointer"
+              onClick={() => {
+                paymentWithPayAI();
+              }}
+            >
+              Pay with PayAI
+            </Button>
+          </div>
+          {/* <p className="py-4">Press ESC key or click outside to close</p> */}
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </AnimateIcon>
   );
 }

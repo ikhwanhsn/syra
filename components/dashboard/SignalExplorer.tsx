@@ -244,8 +244,8 @@ const SignalExplorer = () => {
             </TableRow>
           ) : (
             // Show real data after loading
-            data?.signals?.map((item: any) => (
-              <TableRow key={item.wallet} className="text-base h-12">
+            data?.signals?.map((item: any, index: number) => (
+              <TableRow key={index} className="text-base h-12">
                 <TableCell className="cursor-pointer hover:underline">
                   <Link
                     href={`https://explorer.solana.com/tx/${item.paymentSignature}?cluster=devnet`}

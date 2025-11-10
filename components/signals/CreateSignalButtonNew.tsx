@@ -1,71 +1,3 @@
-// import { Button } from "@/components/ui/button";
-// import {
-//   Dialog,
-//   DialogClose,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { AnimateIcon } from "../animate-ui/icons/icon";
-// import { CirclePlus } from "../animate-ui/icons/circle-plus";
-// import { CreateSignalButton } from "./CreateSignalButton";
-// import { useState } from "react";
-
-// export function CreateSignalButtonNew() {
-//   const [open, setOpen] = useState(false);
-
-//   return (
-//     <Dialog open={open} onOpenChange={setOpen}>
-//       <DialogTrigger asChild>
-//         <AnimateIcon animateOnHover>
-//           <Button variant="outline" size="lg" className="cursor-pointer">
-//             <CirclePlus />
-//             Create Signal
-//           </Button>
-//         </AnimateIcon>
-//       </DialogTrigger>
-//       <DialogContent className="sm:max-w-[425px]">
-//         <DialogHeader>
-//           <DialogTitle>Create Signal</DialogTitle>
-//         </DialogHeader>
-//         <div className="grid gap-4">
-//           <div className="grid gap-3">
-//             <Label htmlFor="type-1">Type</Label>
-//             {/* <Input id="type-1" name="type" defaultValue="Pedro Duarte" /> */}
-//             <select
-//               id="type-1"
-//               name="type"
-//               className="w-full h-12 rounded-md border border-gray-300 px-4"
-//             >
-//               <option value="Long">Long</option>
-//               <option value="Short">Short</option>
-//             </select>
-//           </div>
-//           <div className="grid gap-3">
-//             <Label htmlFor="name-1">Name</Label>
-//             <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
-//           </div>
-//           <div className="grid gap-3">
-//             <Label htmlFor="username-1">Username</Label>
-//             <Input id="username-1" name="username" defaultValue="@peduarte" />
-//           </div>
-//         </div>
-//         <DialogFooter>
-//           <DialogClose asChild>
-//             <Button variant="outline">Cancel</Button>
-//           </DialogClose>
-//           <CreateSignalButton onClose={() => setOpen(false)} />
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -341,6 +273,24 @@ export function CreateSignalButtonNew() {
               Cancel
             </Button>
           </DialogClose>
+          {/* <Button
+            variant="default"
+            className="cursor-pointer"
+            disabled={
+              !formData.ticker ||
+              !formData.entryPrice ||
+              !formData.stopLoss ||
+              !formData.takeProfit
+            }
+            onClick={() => {
+              const click = document.getElementById(
+                "my_modal_2"
+              ) as HTMLDialogElement;
+              click.showModal();
+            }}
+          >
+            Create Signal
+          </Button> */}
           <CreateSignalButton
             onClose={() => setOpen(false)}
             formData={formData}

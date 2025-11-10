@@ -84,7 +84,7 @@ export default function Home() {
           </Link>
         </div>
       </div>
-      {/* <X402FlowDiagram /> */}
+      <X402FlowDiagram />
     </Provider>
   );
 }

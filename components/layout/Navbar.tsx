@@ -26,6 +26,10 @@ const links = [
     href: "/signals",
   },
   {
+    name: "Insight",
+    href: "/insight",
+  },
+  {
     name: "Leaderboard",
     href: "/leaderboard",
   },
