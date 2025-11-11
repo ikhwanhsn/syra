@@ -5,9 +5,11 @@ import { useState } from "react";
 import { Search } from "../animate-ui/icons/search";
 import { useQuery } from "@tanstack/react-query";
 import { marked } from "marked";
+import Image from "next/image";
 
 const ATXPComponent = () => {
   const [valueSearch, setValueSearch] = useState("");
+  const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [result, setResult] = useState(null);
   const [citations, setCitations] = useState([]);
   const { data: sundown } = useQuery({
@@ -23,6 +25,7 @@ const ATXPComponent = () => {
   };
 
   const handleSearch = async () => {
+    setLoadingSearch(true);
     const res = await fetch(`/api/atxp/x?query=${valueSearch}`);
     const data = await res.json();
     console.log("data", data);
@@ -31,6 +34,10 @@ const ATXPComponent = () => {
       const html: any = marked.parse(data.message.message); // convert markdown → HTML
       setResult(html);
       setCitations(data.message.citations);
+      setLoadingSearch(false);
+    } else {
+      toast.error(data.message.message);
+      setLoadingSearch(false);
     }
   };
 
@@ -56,7 +63,17 @@ const ATXPComponent = () => {
           </AnimateIcon>
         </div>
       </div>
-      {!result && (
+      {loadingSearch && (
+        <div className="flex items-center justify-center min-h-screen">
+          <Image
+            src="/videos/search-animation.gif"
+            alt="loading"
+            width={150}
+            height={150}
+          />
+        </div>
+      )}
+      {!loadingSearch && !result && (
         <div className="sm:grid grid-cols-2 gap-1 mt-3">
           <div className="rounded-md bg-gray-50 p-4 flex flex-col gap-1">
             <h3 className="text-xl font-bold text-gray-800 mb-1">Sundown</h3>
@@ -89,7 +106,7 @@ const ATXPComponent = () => {
         </div>
       )}
       <div>
-        {result && (
+        {!loadingSearch && result && (
           <div
             className="rounded-md bg-gray-50 p-4 flex flex-col gap-1 mt-3"
             dangerouslySetInnerHTML={{ __html: result || "" }}
