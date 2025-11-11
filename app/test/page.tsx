@@ -13,7 +13,7 @@ const TestPage = () => {
     <div className="min-h-screen flex flex-col items-center justify-center">
       <h1>Test</h1>
       <Button variant="default" onClick={tryATXP}>
-        Try ATXP
+        Try ATXPs
       </Button>
     </div>
   );
