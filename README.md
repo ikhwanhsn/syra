@@ -53,6 +53,14 @@ cd syra
 # 2️⃣ Install dependencies
 npm install
 
+set env
+SOLANA_RPC_URL=https://solana-rpc.publicnode.com
+SOLANA_PRIVATE_KEY=your_solana_private_key
+FACILITATOR_URL=https://facilitator.payai.network
+TREASURY_ADDRESS=your_treasury_address
+AGENT_SECRET_KEY=ndis736jshdf8husadf7836jshdf8husadf7836jshdf8husadf7836jshdf8husadf7836 # just a random secret key
+AGENT_PRIVATE_KEY=your_agent_private_key # create a new wallet for agent (run npx ts-node scripts/generate-agent-wallet.ts)
+
 # 3️⃣ Start the development server
 npm run dev
 
